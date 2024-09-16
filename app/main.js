@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const GitClient = require("./git/client.js");
-const { CatFile, HashObject, LsTree, WriteTree } = require("./git/commands");
+const { CatFile, HashObject, LsTree, WriteTree, CommitTree } = require("./git/commands");
 
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -28,6 +28,9 @@ switch (command) {
     break;
   case "write-tree":
     handleWriteTreeCommand();
+    break;
+  case "commit-tree":
+    handleCommitTreeCommand();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -82,5 +85,25 @@ function handleLSTreeCommand(){
 
 function handleWriteTreeCommand(){
   const commandObj = new WriteTree();
+  gitClient.run(commandObj);
+}
+
+function handleCommitTreeCommand(){
+  const treeSHA = process.argv[3];
+  const parentCommitSHA = process.argv[5];
+  const commitMessage = process.argv[7];
+
+  const commitFlag = process.argv[6];
+
+  const errorStack = []
+
+  if(!treeSHA) errorStack.push(new Error("Command is invalid : Tree object's hash is not present\n"));
+  if(!parentCommitSHA) errorStack.push(new Error("Command is invalid : Parent commit's hash is not present\n"));
+  if(!commitFlag || commitFlag !== "-m" ) errorStack.push(new Error(`Command is invalid : ${commitFlag} is not a valid Commit Flag\n`));
+  if(!commitMessage) errorStack.push(new Error("Command is invalid : Commit message is not present\n"));
+
+  if (errorStack.length()>0) throw errorStack;
+
+  const commandObj = CommitTree(treeSHA, parentCommitSHA, commitMessage);
   gitClient.run(commandObj);
 }
