@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const GitClient = require("./git/client.js");
-const { CatFile, HashObject, LsTree } = require("./git/commands");
+const { CatFile, HashObject, LsTree, WriteTree } = require("./git/commands");
 
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -25,6 +25,9 @@ switch (command) {
     break;
   case "ls-tree":
     handleLSTreeCommand();
+    break;
+  case "write-tree":
+    handleWriteTreeCommand();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -74,5 +77,10 @@ function handleLSTreeCommand(){
   }
   
   const commandObj = new LsTree(flag, sha);
+  gitClient.run(commandObj);
+}
+
+function handleWriteTreeCommand(){
+  const commandObj = new WriteTree();
   gitClient.run(commandObj);
 }
